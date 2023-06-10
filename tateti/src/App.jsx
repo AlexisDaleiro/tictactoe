@@ -1,8 +1,8 @@
 import { useState } from "react";
-
+import confetti from 'canvas-confetti'
 const TURNS = {
-  X: "x",
-  O: "o",
+  X: "❌",
+  O: "⚪",
 }
 
 const Square = ({ children, isSelected, updateBoard, index }) => {
@@ -50,6 +50,16 @@ function App() {
     return null
   }
 
+const resetGame = () => {
+  setBoard(Array(9).fill(null))
+  setTurn(TURNS.X)
+  setWinner(null)
+}
+
+const checkEndGame = (newBoard) =>{
+  return newBoard.every((square) => square != null)
+}
+
   const updateBoard = (index) => {
     if (board[index]) return
     const newBoard = [...board]
@@ -60,13 +70,17 @@ function App() {
     // check for winner
     const newWinner = checkWinner(newBoard)
     if (newWinner){
+      confetti()
       setWinner(newWinner)
+    } else if (checkEndGame(newBoard)) {
+      setWinner(false)
     }
   }
 
   return (
     <main className="board">
       <h1>Tic Tac Toe</h1>
+      <button onClick={resetGame}> Reset </button>
       <section className="game">
         {
         board.map((_, index) => {
@@ -89,6 +103,28 @@ function App() {
           {TURNS.O}
         </Square>
       </section>
+        {
+          winner != null && (
+            <section className="winner">
+              <div className="text">
+                <h2>
+                  {
+                    winner === false
+                    ? 'Empate'
+                    : 'Ganó: '
+                  }
+                </h2>
+                <header className="win">
+                  {winner && <Square> {winner} </Square>}
+                </header>
+                <footer>
+                  <button onClick={resetGame}> Empezar denuevo</button>
+                </footer>
+              </div>
+            </section>
+          )
+        }
+
     </main>
   );
 }
